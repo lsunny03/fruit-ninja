@@ -41,6 +41,10 @@
   #fruitOptions { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; }
   #fruitOptions label { display: flex; align-items: center; gap: 6px; font-weight: 800; cursor: pointer; text-transform: capitalize; }
   #fruitOptions input:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  #bladeOptions { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; }
+  #bladeOptions label { display: flex; align-items: center; gap: 6px; font-weight: 800; cursor: pointer; }
+  #bladeOptions input:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  #bladeOptions .swatch { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; }
 </style>
 </head>
 <body>
@@ -68,6 +72,10 @@
       <option value="desert">Desert</option>
     </select>
   </label>
+  <fieldset class="fruit-picker blade-picker">
+    <legend>Blade</legend>
+    <div id="bladeOptions" role="radiogroup" aria-label="Blade color"></div>
+  </fieldset>
   <fieldset class="fruit-picker">
     <legend>Fruit</legend>
     <div id="fruitOptions"></div>
@@ -118,6 +126,33 @@
     arctic:  { label: 'Arctic',  top: '#e8f6ff', bottom: '#7fa9c9', accent: '#2a6fb0', shadow: '#3d6d8f', bg: '#7fa9c9' },
     desert:  { label: 'Desert',  top: '#ffd28a', bottom: '#b5542a', accent: '#fff0b3', shadow: '#7a3212', bg: '#b5542a' },
   };
+  const BLADES = {
+    white:  { label: 'White',  color: '#ffffff' },
+    gold:   { label: 'Gold',   color: '#ffcc33' },
+    cyan:   { label: 'Cyan',   color: '#5ef0ff' },
+    pink:   { label: 'Pink',   color: '#ff6bd6' },
+    lime:   { label: 'Lime',   color: '#b6ff5a' },
+  };
+  const bladeOptions = document.getElementById('bladeOptions');
+  let blade = localStorage.getItem('fruitNinjaBlade');
+  if (!BLADES[blade]) blade = 'white';
+  Object.entries(BLADES).forEach(([key, b]) => {
+    const label = document.createElement('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'blade';
+    radio.value = key;
+    radio.checked = key === blade;
+    radio.addEventListener('change', () => {
+      blade = key;
+      localStorage.setItem('fruitNinjaBlade', key);
+    });
+    const swatch = document.createElement('span');
+    swatch.className = 'swatch';
+    swatch.style.background = b.color;
+    label.append(radio, swatch, b.label);
+    bladeOptions.append(label);
+  });
   const fruitOptions = document.getElementById('fruitOptions');
   const savedFruits = JSON.parse(localStorage.getItem('fruitNinjaFruits') || 'null');
   const enabledFruits = new Set(Array.isArray(savedFruits) ? savedFruits.filter(n => FRUITS.some(f => f.name === n)) : FRUITS.map(f => f.name));
@@ -465,11 +500,13 @@
       const a = trail[i - 1], b = trail[i];
       const age = (now - b.t) / 120;
       const alpha = Math.max(0, 1 - age);
-      ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.9})`;
+      ctx.strokeStyle = BLADES[blade].color;
+      ctx.globalAlpha = alpha * 0.9;
       ctx.lineWidth = Math.max(1, 12 * alpha);
       ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
     }
+    ctx.globalAlpha = 1;
   }
 
   function drawBackground() {
