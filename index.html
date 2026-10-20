@@ -36,6 +36,11 @@
   .theme-picker { display: flex; align-items: center; gap: 10px; font-weight: 800; }
   .theme-picker select { font: inherit; font-weight: 800; padding: 8px 14px; border-radius: 12px; border: 2px solid var(--accent, #ffcc33); background: rgba(0,0,0,.35); color: var(--ink); cursor: pointer; }
   .theme-picker select:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .fruit-picker { border: 2px solid var(--accent, #ffcc33); border-radius: 12px; padding: 8px 14px 12px; background: rgba(0,0,0,.35); }
+  .fruit-picker legend { font-weight: 800; padding: 0 6px; }
+  #fruitOptions { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; }
+  #fruitOptions label { display: flex; align-items: center; gap: 6px; font-weight: 800; cursor: pointer; text-transform: capitalize; }
+  #fruitOptions input:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -63,6 +68,10 @@
       <option value="desert">Desert</option>
     </select>
   </label>
+  <fieldset class="fruit-picker">
+    <legend>Fruit</legend>
+    <div id="fruitOptions"></div>
+  </fieldset>
   <button id="startBtn">START</button>
 </div>
 
@@ -109,6 +118,25 @@
     arctic:  { label: 'Arctic',  top: '#e8f6ff', bottom: '#7fa9c9', accent: '#2a6fb0', shadow: '#3d6d8f', bg: '#7fa9c9' },
     desert:  { label: 'Desert',  top: '#ffd28a', bottom: '#b5542a', accent: '#fff0b3', shadow: '#7a3212', bg: '#b5542a' },
   };
+  const fruitOptions = document.getElementById('fruitOptions');
+  const savedFruits = JSON.parse(localStorage.getItem('fruitNinjaFruits') || 'null');
+  const enabledFruits = new Set(Array.isArray(savedFruits) ? savedFruits.filter(n => FRUITS.some(f => f.name === n)) : FRUITS.map(f => f.name));
+  if (!enabledFruits.size) FRUITS.forEach(f => enabledFruits.add(f.name));
+  FRUITS.forEach(f => {
+    const label = document.createElement('label');
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.value = f.name;
+    box.checked = enabledFruits.has(f.name);
+    box.addEventListener('change', () => {
+      if (box.checked) enabledFruits.add(f.name);
+      else if (enabledFruits.size > 1) enabledFruits.delete(f.name);
+      else { box.checked = true; return; }
+      localStorage.setItem('fruitNinjaFruits', JSON.stringify([...enabledFruits]));
+    });
+    label.append(box, f.name);
+    fruitOptions.append(label);
+  });
   const themeSelect = document.getElementById('themeSelect');
   const savedTheme = localStorage.getItem('fruitNinjaTheme');
   let theme = THEMES[savedTheme] ? savedTheme : 'classic';
@@ -159,7 +187,8 @@
 
   function spawnItem() {
     const isBomb = Math.random() < Math.min(0.08 + elapsed / 300, 0.2);
-    const type = isBomb ? BOMB : FRUITS[Math.floor(Math.random() * FRUITS.length)];
+    const pool = FRUITS.filter(f => enabledFruits.has(f.name));
+    const type = isBomb ? BOMB : pool[Math.floor(Math.random() * pool.length)];
     const x = W * (0.15 + Math.random() * 0.7);
     const y = H + type.r;
     const targetX = W * (0.2 + Math.random() * 0.6);
