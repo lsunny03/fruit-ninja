@@ -70,6 +70,7 @@
       <option value="candy">Candy</option>
       <option value="arctic">Arctic</option>
       <option value="desert">Desert</option>
+      <option value="random">Random</option>
     </select>
   </label>
   <fieldset class="fruit-picker blade-picker">
@@ -79,6 +80,7 @@
   <fieldset class="fruit-picker">
     <legend>Fruit</legend>
     <div id="fruitOptions"></div>
+    <button type="button" id="fruitRandom">Random</button>
   </fieldset>
   <button id="startBtn">START</button>
 </div>
@@ -132,10 +134,16 @@
     cyan:   { label: 'Cyan',   color: '#5ef0ff' },
     pink:   { label: 'Pink',   color: '#ff6bd6' },
     lime:   { label: 'Lime',   color: '#b6ff5a' },
+    red:    { label: 'Red',    color: '#ff4d4d' },
+    orange: { label: 'Orange', color: '#ff9a1f' },
+    blue:   { label: 'Blue',   color: '#3d7bff' },
+    purple: { label: 'Purple', color: '#a66bff' },
+    green:  { label: 'Green',  color: '#3fbf4a' },
   };
   const bladeOptions = document.getElementById('bladeOptions');
   let blade = localStorage.getItem('fruitNinjaBlade');
-  if (!BLADES[blade]) blade = 'white';
+  if (blade !== 'random' && !BLADES[blade]) blade = 'white';
+  let activeBlade = blade === 'random' ? randomKey(BLADES) : blade;
   Object.entries(BLADES).forEach(([key, b]) => {
     const label = document.createElement('label');
     const radio = document.createElement('input');
@@ -153,6 +161,20 @@
     label.append(radio, swatch, b.label);
     bladeOptions.append(label);
   });
+  {
+    const label = document.createElement('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'blade';
+    radio.value = 'random';
+    radio.checked = blade === 'random';
+    radio.addEventListener('change', () => {
+      blade = 'random';
+      localStorage.setItem('fruitNinjaBlade', blade);
+    });
+    label.append(radio, 'Random');
+    bladeOptions.append(label);
+  }
   const fruitOptions = document.getElementById('fruitOptions');
   const savedFruits = JSON.parse(localStorage.getItem('fruitNinjaFruits') || 'null');
   const enabledFruits = new Set(Array.isArray(savedFruits) ? savedFruits.filter(n => FRUITS.some(f => f.name === n)) : FRUITS.map(f => f.name));
@@ -172,9 +194,19 @@
     label.append(box, f.name);
     fruitOptions.append(label);
   });
+  const randomKey = o => { const k = Object.keys(o); return k[Math.floor(Math.random() * k.length)]; };
+  document.getElementById('fruitRandom').addEventListener('click', () => {
+    const names = FRUITS.map(f => f.name).sort(() => Math.random() - 0.5);
+    const count = 1 + Math.floor(Math.random() * names.length);
+    enabledFruits.clear();
+    names.slice(0, count).forEach(n => enabledFruits.add(n));
+    fruitOptions.querySelectorAll('input').forEach(b => { b.checked = enabledFruits.has(b.value); });
+    localStorage.setItem('fruitNinjaFruits', JSON.stringify([...enabledFruits]));
+  });
   const themeSelect = document.getElementById('themeSelect');
   const savedTheme = localStorage.getItem('fruitNinjaTheme');
-  let theme = THEMES[savedTheme] ? savedTheme : 'classic';
+  let themeChoice = savedTheme === 'random' || THEMES[savedTheme] ? savedTheme : 'classic';
+  let theme = themeChoice === 'random' ? randomKey(THEMES) : themeChoice;
 
   function applyTheme() {
     const t = THEMES[theme];
@@ -182,11 +214,12 @@
     root.setProperty('--accent', t.accent);
     root.setProperty('--accent-shadow', t.shadow);
     root.setProperty('--bg', t.bg);
-    themeSelect.value = theme;
+    themeSelect.value = themeChoice;
   }
   themeSelect.addEventListener('change', () => {
-    theme = themeSelect.value;
-    localStorage.setItem('fruitNinjaTheme', theme);
+    themeChoice = themeSelect.value;
+    localStorage.setItem('fruitNinjaTheme', themeChoice);
+    theme = themeChoice === 'random' ? randomKey(THEMES) : themeChoice;
     applyTheme();
   });
   applyTheme();
@@ -378,6 +411,12 @@
   canvas.addEventListener('pointercancel', endPointer);
   canvas.addEventListener('pointerleave', endPointer);
 
+  const rollRandom = () => {
+    if (themeChoice === 'random') { theme = randomKey(THEMES); applyTheme(); }
+    activeBlade = blade === 'random' ? randomKey(BLADES) : blade;
+  };
+  document.getElementById('startBtn').addEventListener('click', rollRandom);
+  document.getElementById('againBtn').addEventListener('click', rollRandom);
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('againBtn').addEventListener('click', startGame);
   bestMenu.textContent = best ? `Best: ${best}` : '';
@@ -500,7 +539,7 @@
       const a = trail[i - 1], b = trail[i];
       const age = (now - b.t) / 120;
       const alpha = Math.max(0, 1 - age);
-      ctx.strokeStyle = BLADES[blade].color;
+      ctx.strokeStyle = BLADES[activeBlade].color;
       ctx.globalAlpha = alpha * 0.9;
       ctx.lineWidth = Math.max(1, 12 * alpha);
       ctx.lineCap = 'round';
