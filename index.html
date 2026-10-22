@@ -80,7 +80,6 @@
   <fieldset class="fruit-picker">
     <legend>Fruit</legend>
     <div id="fruitOptions"></div>
-    <button type="button" id="fruitRandom">Random</button>
   </fieldset>
   <button id="startBtn">START</button>
 </div>
@@ -195,14 +194,6 @@
     fruitOptions.append(label);
   });
   const randomKey = o => { const k = Object.keys(o); return k[Math.floor(Math.random() * k.length)]; };
-  document.getElementById('fruitRandom').addEventListener('click', () => {
-    const names = FRUITS.map(f => f.name).sort(() => Math.random() - 0.5);
-    const count = 1 + Math.floor(Math.random() * names.length);
-    enabledFruits.clear();
-    names.slice(0, count).forEach(n => enabledFruits.add(n));
-    fruitOptions.querySelectorAll('input').forEach(b => { b.checked = enabledFruits.has(b.value); });
-    localStorage.setItem('fruitNinjaFruits', JSON.stringify([...enabledFruits]));
-  });
   const themeSelect = document.getElementById('themeSelect');
   const savedTheme = localStorage.getItem('fruitNinjaTheme');
   let themeChoice = savedTheme === 'random' || THEMES[savedTheme] ? savedTheme : 'classic';
