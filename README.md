@@ -1,4 +1,4 @@
-# Fruit Ninja Game
+# Fruit Ninja Game!
 
 A single-page browser game. Slice fruit with a swipe or drag, avoid bombs, and keep your lives.
 
