@@ -118,6 +118,13 @@
     { name: 'apple',      color: '#e03a3a', inner: '#fff3c4', rind: '#9b1b1b', r: 36 },
     { name: 'lemon',      color: '#ffe03a', inner: '#fff7a0', rind: '#c9a600', r: 30 },
     { name: 'banana',     color: '#ffd84d', inner: '#fff1b0', rind: '#b58b00', r: 34 },
+    { name: 'grape',      color: '#7b3fbf', inner: '#c9a0ff', rind: '#4a1f7a', r: 28 },
+    { name: 'peach',      color: '#ffb088', inner: '#ffe0c2', rind: '#d9733f', r: 33 },
+    { name: 'pineapple',  color: '#f5b82e', inner: '#fff2a8', rind: '#8a5a00', r: 40 },
+    { name: 'strawberry', color: '#e8334a', inner: '#ffd0d6', rind: '#8f0d1f', r: 28 },
+    { name: 'donut',      color: '#f4a261', inner: '#ff8fb1', rind: '#b5652a', r: 34 },
+    { name: 'cookie',     color: '#d99a4e', inner: '#f2d2a0', rind: '#8a5526', r: 34 },
+    { name: 'carrot',     color: '#ff7a1a', inner: '#ffd08a', rind: '#2f7a2f', r: 30 },
   ];
   const BOMB = { name: 'bomb', r: 34 };
 
@@ -510,6 +517,24 @@
         ctx.strokeStyle = t.color; ctx.lineWidth = f.r * 0.5; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.arc(0, f.r * 0.55, f.r * 0.95, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
         ctx.lineCap = 'butt';
+      } else if (t.name === 'donut') {
+        ctx.fillStyle = t.inner;
+        ctx.beginPath(); ctx.arc(0, 0, f.r * 0.8, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#1b1b2f'; ctx.beginPath(); ctx.arc(0, 0, f.r * 0.32, 0, Math.PI * 2); ctx.fill();
+        ['#fff', '#3bd1ff', '#ffe03a', '#7bdc5a'].forEach((c, k) => {
+          const a = k * 1.6 + 0.4;
+          ctx.fillStyle = c;
+          ctx.beginPath(); ctx.arc(Math.cos(a) * f.r * 0.56, Math.sin(a) * f.r * 0.56, 3, 0, Math.PI * 2); ctx.fill();
+        });
+      } else if (t.name === 'cookie') {
+        ctx.fillStyle = '#3b2314';
+        [[-0.4, -0.2], [0.3, -0.4], [0.1, 0.35], [-0.3, 0.4], [0.45, 0.1]].forEach(([x, y]) => {
+          ctx.beginPath(); ctx.arc(x * f.r, y * f.r, 3.5, 0, Math.PI * 2); ctx.fill();
+        });
+      } else if (t.name === 'carrot') {
+        ctx.fillStyle = '#3d9a3d';
+        ctx.beginPath(); ctx.ellipse(-4, -f.r + 2, 6, 10, -0.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(6, -f.r + 2, 5, 9, 0.5, 0, Math.PI * 2); ctx.fill();
       }
     }
     ctx.restore();
