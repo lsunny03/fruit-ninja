@@ -125,6 +125,10 @@
     { name: 'donut',      color: '#f4a261', inner: '#ff8fb1', rind: '#b5652a', r: 34 },
     { name: 'cookie',     color: '#d99a4e', inner: '#f2d2a0', rind: '#8a5526', r: 34 },
     { name: 'carrot',     color: '#ff7a1a', inner: '#ffd08a', rind: '#2f7a2f', r: 30 },
+    { name: 'lollipop',   color: '#ff4fa3', inner: '#ffe3f1', rind: '#c4236f', r: 32 },
+    { name: 'wrapped',    color: '#4fc3f7', inner: '#e1f5ff', rind: '#1d6fa3', r: 28 },
+    { name: 'gumdrop',    color: '#7ed957', inner: '#e8ffd6', rind: '#3f8a22', r: 30 },
+    { name: 'gem',        color: '#2ec4b6', inner: '#c8fff7', rind: '#17706a', r: 32 },
   ];
   const BOMB = { name: 'bomb', r: 34 };
 
@@ -535,6 +539,27 @@
         ctx.fillStyle = '#3d9a3d';
         ctx.beginPath(); ctx.ellipse(-4, -f.r + 2, 6, 10, -0.6, 0, Math.PI * 2); ctx.fill();
         ctx.beginPath(); ctx.ellipse(6, -f.r + 2, 5, 9, 0.5, 0, Math.PI * 2); ctx.fill();
+      } else if (t.name === 'lollipop') {
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(0, 0, f.r * 0.55, 0, Math.PI * 1.5); ctx.stroke();
+        ctx.strokeStyle = '#f0e0c0'; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.moveTo(0, f.r * 0.1); ctx.lineTo(0, f.r + 26); ctx.stroke();
+      } else if (t.name === 'wrapped') {
+        ctx.fillStyle = t.rind;
+        ctx.beginPath(); ctx.moveTo(-f.r, 0); ctx.lineTo(-f.r * 1.5, -f.r * 0.55); ctx.lineTo(-f.r * 1.5, f.r * 0.55); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(f.r, 0); ctx.lineTo(f.r * 1.5, -f.r * 0.55); ctx.lineTo(f.r * 1.5, f.r * 0.55); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(-f.r * 0.7, -f.r * 0.5); ctx.lineTo(f.r * 0.7, f.r * 0.5); ctx.stroke();
+      } else if (t.name === 'gumdrop') {
+        ctx.fillStyle = '#ffffff';
+        [[-0.4, -0.3], [0.35, -0.25], [0, 0.35], [0.45, 0.3]].forEach(([x, y]) => {
+          ctx.beginPath(); ctx.arc(x * f.r, y * f.r, 3, 0, Math.PI * 2); ctx.fill();
+        });
+      } else if (t.name === 'gem') {
+        ctx.fillStyle = t.inner;
+        ctx.beginPath(); ctx.moveTo(0, -f.r * 0.6); ctx.lineTo(f.r * 0.55, 0); ctx.lineTo(0, f.r * 0.6); ctx.lineTo(-f.r * 0.55, 0); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = t.rind; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-f.r * 0.55, 0); ctx.lineTo(f.r * 0.55, 0); ctx.stroke();
       }
     }
     ctx.restore();
